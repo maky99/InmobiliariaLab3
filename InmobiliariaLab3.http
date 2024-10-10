@@ -1,0 +1,6 @@
+@InmobiliariaLab3_HostAddress = http://localhost:5027
+
+GET {{InmobiliariaLab3_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

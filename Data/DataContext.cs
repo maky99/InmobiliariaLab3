@@ -10,6 +10,8 @@ namespace InmobiliariaLab3.Models
 
         public DbSet<Propietario> Propietario { get; set; }
         public DbSet<Inquilino> Inquilino { get; set; }
+        public DbSet<Inmueble> Inmueble { get; set; }
+        public DbSet<Tipo_Inmueble> Tipo_Inmueble { get; set; }
 
 
     }

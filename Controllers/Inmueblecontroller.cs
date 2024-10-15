@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using InmobiliariaLab3.Models;  // Cambia el namespace según tu proyecto
-using Microsoft.EntityFrameworkCore;  // Para usar Include
+using InmobiliariaLab3.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace InmobiliariaSarchioniAlfonzo.Controllers.API
 {
     [ApiController]
     [Route("api/[controller]")]
+
     public class InmuebleController : ControllerBase
     {
         private readonly DataContext _context;

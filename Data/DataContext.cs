@@ -14,5 +14,7 @@ namespace InmobiliariaLab3.Models
         public DbSet<Tipo_Inmueble> Tipo_Inmueble { get; set; }
 
 
+
+
     }
 }

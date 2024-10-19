@@ -34,21 +34,49 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
             return Ok(propietarios);  // Devuelve los propietarios en formato JSON
         }
 
-        //Método para obtener un propietario por su ID y
-        [HttpGet("{id}")]
-        [Authorize]  // Requiere autorización con token
 
-        public IActionResult GetPropietario(int id)
+
+        [HttpGet("miPerfil")]
+        [Authorize]
+        public async Task<ActionResult<Propietario>> GetPropietario()
         {
-            var propietario = _context.Propietario.FirstOrDefault(p => p.Id_Propietario == id);  // Busca un propietario por ID
+            // extraer el id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // convertir el id a entero
+            int idPropietario = int.Parse(userId);
+            // buscar al propietario por id
+            Propietario? propietario = await _context.Propietario.FirstOrDefaultAsync(p => p.Id_Propietario == idPropietario);
 
-            if (propietario == null)
-            {
-                return NotFound();  // Si no se encuentra, devuelve un error 404
-            }
-
-            return Ok(propietario);  // Devuelve el propietario en formato JSON
+            return Ok(propietario);
         }
+
+        [HttpPost("editarPerfil")]
+        [Authorize]
+        public async Task<IActionResult> EditarPropietario([FromBody] Propietario propieta)
+        {
+            // extraer el id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // convertir el id a entero
+            int idPropietario = int.Parse(userId);
+            // Buscar al propietario por ID en la base de datos
+            var propietarioBase = await _context.Propietario.FirstOrDefaultAsync(p => p.Id_Propietario == idPropietario);
+            if (propietarioBase == null)
+            {
+                return NotFound("Propietario no encontrado.");
+            }
+            // actualizo campos del propietario
+            propietarioBase.Apellido = propieta.Apellido;
+            propietarioBase.Nombre = propieta.Nombre;
+            propietarioBase.Direccion = propieta.Direccion;
+            propietarioBase.Telefono = propieta.Telefono;
+            propietarioBase.Email = propieta.Email;
+            propietarioBase.foto = propieta.foto;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(propietarioBase);
+        }
+
 
 
         //genero contraseña si no tiene 
@@ -138,7 +166,7 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = tokenString });
+            return Ok(tokenString);
         }
 
         // Método para verificar la contraseña (suponiendo que uses el mismo método de hashing que al almacenar)
@@ -157,6 +185,50 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
         }
 
 
+
+
+        //metodo para cambiar la contraseña
+        [HttpPost("editarContrasena")]
+        [Authorize]
+        public async Task<IActionResult> EditarContrasena([FromBody] String contraNueva, [FromBody] String contraVieja)
+        {
+            // extraer el id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // convertir el id a entero
+            int idPropietario = int.Parse(userId);
+            // Buscar al propietario por ID en la base de datos
+            var propietarioBase = await _context.Propietario.FirstOrDefaultAsync(p => p.Id_Propietario == idPropietario);
+
+            if (VerificarContrasena(contraVieja, propietarioBase.Contrasena))
+            {
+                return NotFound("No coinciden las contraseñas.");
+            }
+
+
+            // Verifica si la contraseña está vacía o nula
+            if (string.IsNullOrEmpty(contraNueva))
+            {
+                byte[] salt;
+                salt = Convert.FromBase64String(_configuration["Salt"]);
+                // Generar el hash de la nueva contraseña
+                string nuevaContrasena = contraNueva;  //generar una nueva contraseña por defecto.
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                password: nuevaContrasena,
+                                salt: salt,
+                                prf: KeyDerivationPrf.HMACSHA1,
+                                iterationCount: 1000,
+                                numBytesRequested: 256 / 8));
+
+                // actualizo campos del propietario
+                propietarioBase.Contrasena = nuevaContrasena;
+                // guarda los cambios en la base de datos
+                await _context.SaveChangesAsync();
+
+                return Ok(new { mensaje = "Contraseña generada y guardada con éxito", nuevaContrasena });
+            }
+
+            return Ok(propietarioBase);
+        }
 
     }
 

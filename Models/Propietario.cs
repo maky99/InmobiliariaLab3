@@ -15,7 +15,6 @@ public partial class Propietario
     public string? Telefono { get; set; }
     public string? Email { get; set; }
     public string? Contrasena { get; set; }
+    public string? foto { get; set; }
     public int? Estado_Propietario { get; set; }
-
-
 }

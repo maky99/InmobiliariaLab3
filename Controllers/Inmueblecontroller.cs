@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using InmobiliariaLab3.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace InmobiliariaSarchioniAlfonzo.Controllers.API
 {
@@ -17,14 +19,25 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
             _context = context;
         }
 
-        [HttpGet("{id_propietario}")]
-        public IActionResult InmueblesXId(int id_propietario)
+        [HttpGet("inmuebles")]
+        [Authorize]
+        public IActionResult GetInmuebles()
         {
+            // extraer el id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { mensaje = "No se pudo obtener el ID del token." });
+            }
+            // convertir el id a entero
+            int idPropietario = int.Parse(userId);
+
+
             // Incluimos las relaciones con Propietario y Tipo_Inmueble
             var inmuebles = _context.Inmueble
                 .Include(i => i.propietario)  // Incluimos la relación con Propietario
                 .Include(i => i.tipo)  // Incluimos la relación con Tipo_Inmueble
-                .Where(i => i.Id_Propietario == id_propietario)
+                .Where(i => i.Id_Propietario == idPropietario)
                 .Select(i => new
                 {
                     i.Id_Inmueble,

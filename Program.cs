@@ -59,7 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection();//se tiene que desactivar para que corra en el celular 
 app.UseStaticFiles();  // Si tienes archivos estáticos como CSS, JS, etc.
 app.UseRouting();
 

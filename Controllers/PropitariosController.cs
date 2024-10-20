@@ -190,7 +190,7 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
         //metodo para cambiar la contraseña
         [HttpPost("editarContrasena")]
         [Authorize]
-        public async Task<IActionResult> EditarContrasena([FromBody] String contraNueva, [FromBody] String contraVieja)
+        public async Task<IActionResult> EditarContrasena([FromBody] LoginCambio cambio)
         {
             // extraer el id del propietario desde el token JWT
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -199,36 +199,40 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
             // Buscar al propietario por ID en la base de datos
             var propietarioBase = await _context.Propietario.FirstOrDefaultAsync(p => p.Id_Propietario == idPropietario);
 
-            if (VerificarContrasena(contraVieja, propietarioBase.Contrasena))
+            if (propietarioBase == null)
+            {
+                return NotFound("Propietario no encontrado.");
+            }
+
+            // Verifica si la contraseña vieja es correcta
+            if (!VerificarContrasena(cambio.contraVieja, propietarioBase.Contrasena))
             {
                 return NotFound("No coinciden las contraseñas.");
             }
 
-
-            // Verifica si la contraseña está vacía o nula
-            if (string.IsNullOrEmpty(contraNueva))
+            // Verifica si la nueva contraseña está vacía o nula
+            if (string.IsNullOrEmpty(cambio.contraNueva))
             {
-                byte[] salt;
-                salt = Convert.FromBase64String(_configuration["Salt"]);
-                // Generar el hash de la nueva contraseña
-                string nuevaContrasena = contraNueva;  //generar una nueva contraseña por defecto.
-                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                                password: nuevaContrasena,
+                return BadRequest("La nueva contraseña no puede estar vacía.");
+            }
+
+            // Hash de la nueva contraseña
+            byte[] salt = Convert.FromBase64String(_configuration["Salt"]);
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                password: cambio.contraNueva,
                                 salt: salt,
                                 prf: KeyDerivationPrf.HMACSHA1,
                                 iterationCount: 1000,
                                 numBytesRequested: 256 / 8));
 
-                // actualizo campos del propietario
-                propietarioBase.Contrasena = nuevaContrasena;
-                // guarda los cambios en la base de datos
-                await _context.SaveChangesAsync();
+            // actualizo campos del propietario
+            propietarioBase.Contrasena = hashed;
+            // guarda los cambios en la base de datos
+            await _context.SaveChangesAsync();
 
-                return Ok(new { mensaje = "Contraseña generada y guardada con éxito", nuevaContrasena });
-            }
-
-            return Ok(propietarioBase);
+            return Ok(new { mensaje = "Contraseña actualizada con éxito." });
         }
+
 
     }
 

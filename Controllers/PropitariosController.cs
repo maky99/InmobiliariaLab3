@@ -184,9 +184,6 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
             return hashedInputPassword == hashedPassword;  // Compara la contraseña hasheada ingresada con la almacenada
         }
 
-
-
-
         //metodo para cambiar la contraseña
         [HttpPost("editarContrasena")]
         [Authorize]

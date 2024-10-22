@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(options =>
                 (path.StartsWithSegments("/chatsegurohub") ||
                 path.StartsWithSegments("/api/propietarios/reset") ||
                 path.StartsWithSegments("/api/propietarios/token") ||
-                 path.StartsWithSegments("/api/propietarios/mail&token")))
+                path.StartsWithSegments("/api/propietarios/mail&token")))
             {//reemplazar las urls por las necesarias ruta ⬆
                 context.Token = accessToken;
             }

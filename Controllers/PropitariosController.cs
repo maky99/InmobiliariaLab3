@@ -302,17 +302,19 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
 
         [HttpPost("email")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetByEmail([FromForm] string email)
+        public async Task<IActionResult> email([FromForm] string email)
         {
+            Console.WriteLine(email);
+
             try
             {
                 var entidad = await _context.Propietario.FirstOrDefaultAsync(x => x.Email == email);
 
                 if (entidad != null)
                 {
-                    var Token = GenerarToken(entidad);
-                    var url = this.GenerarUrlCompleta("Token", "Propietarios", environment);
-                    return Ok(new { Propietario = entidad, Token = Token });
+                    var token = GenerarToken(entidad);
+                    Console.WriteLine(token);
+                    return Ok(token); // Solo devuelve el token
                 }
                 else
                 {
@@ -324,6 +326,7 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
                 return BadRequest(ex.Message);
             }
         }
+
 
 
 
@@ -358,9 +361,10 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
 
             // Crea el token
             var tokenMail = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(tokenMail);
 
             // Escribe el token en formato string
-            return tokenHandler.WriteToken(tokenMail);
+            return tokenString;
         }
 
 

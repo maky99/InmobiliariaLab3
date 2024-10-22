@@ -41,14 +41,14 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
                 .Select(i => new
                 {
                     i.Id_Inmueble,
-                    Propietario = i.propietario.Apellido + ", " + i.propietario.Nombre,
+                    Propietario = i.propietario != null ? i.propietario.Apellido + ", " + i.propietario.Nombre : "Propietario no asignado",
                     i.Direccion,
                     i.Uso,
                     i.Ambientes,
                     i.Latitud,
                     i.Longitud,
                     i.Tamano,
-                    TipoInmueble = i.tipo.Tipo,  // Proyectamos la descripción del tipo de inmueble
+                    TipoInmueble = i.tipo != null ? i.tipo.Tipo : "Tipo no asignado",
                     i.Servicios,
                     i.Bano,
                     i.Cochera,

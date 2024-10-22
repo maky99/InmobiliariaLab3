@@ -29,6 +29,26 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(
                 configuration["TokenAuthentication:SecretKey"])),
     };
+    // opción extra para usar el token en el hub y otras peticiones sin encabezado (enlaces, src de img, etc.)
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Leer el token desde el query string
+            var accessToken = context.Request.Query["access_token"];
+            // Si el request es para el Hub u otra ruta seleccionada...
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/chatsegurohub") ||
+                path.StartsWithSegments("/api/propietarios/reset") ||
+                path.StartsWithSegments("/api/propietarios/token") ||
+                 path.StartsWithSegments("/api/propietarios/mail&token")))
+            {//reemplazar las urls por las necesarias ruta ⬆
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // Añadir autorización con políticas

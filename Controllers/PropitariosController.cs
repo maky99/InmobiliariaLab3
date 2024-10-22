@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using InmobiliariaLab3.Models;  // Cambia el namespace según tu proyecto
-using System.Linq;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,6 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using InmobiliariaSarchioniAlfonzo.Controllers.Services;
+
+
+using MimeKit;
+
 
 namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coincida con el del proyecto
 {
@@ -19,10 +22,15 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
         private readonly DataContext _context;  // Utilizamos tu DataContext aquí
         private readonly IConfiguration _configuration;  // se agrega IConfiguration para usar la salt
 
-        public PropietariosController(DataContext context, IConfiguration configuration)
+        private readonly IWebHostEnvironment environment;
+
+
+        public PropietariosController(DataContext context, IConfiguration configuration, IWebHostEnvironment env)
         {
             _context = context;
             _configuration = configuration;
+            environment = env;
+
         }
 
         // Método para obtener todos los propietarios
@@ -229,6 +237,133 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
 
             return Ok(new { mensaje = "Contraseña actualizada con éxito." });
         }
+
+
+        //recupero de olvido mi contraseña para que le mande el mail 
+
+        // GET api/<controller>/token
+        [HttpGet("mail&token")]
+        public async Task<IActionResult> Token()
+        {
+            try
+            {
+                var perfil = new
+                {
+                    Email = User.Claims.First(x => x.Type == ClaimTypes.Email).Value, // sacamos el email correcto
+                    Nombre = User.Claims.First(x => x.Type == "Apellido").Value, // sacamos el apellido 
+                };
+                //se genera clave de 4 
+                Random rand = new Random(Environment.TickCount);
+                string randomChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789";
+                string nuevaClave = "";
+                for (int i = 0; i < 4; i++)
+                {
+                    nuevaClave += randomChars[rand.Next(0, randomChars.Length)];
+                }
+                //Console.WriteLine($"Enviando correo a: {perfil.Email}, con nombre: {perfil.Nombre}");
+
+                // Crear el mensaje de correo
+                var message = new MimeKit.MimeMessage();
+                message.To.Add(new MailboxAddress(perfil.Nombre, perfil.Email));
+                message.From.Add(new MailboxAddress("Sistema", _configuration["SMTPSettings:SMTPUser"]));
+                message.Subject = "Prueba de Correo desde API";
+                message.Body = new TextPart("html")
+                {
+                    Text = @$"<h1>Hola</h1>
+                     <p>¡Solicitaste el cambio tu Clave, {perfil.Nombre}!</p>
+                     <p>Tu nueva clave es: {nuevaClave}</p>",
+                };
+
+                // Usar MailKit.Net.Smtp.SmtpClient para Mailtrap
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    client.ServerCertificateValidationCallback = (object sender,
+                        System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                        System.Security.Cryptography.X509Certificates.X509Chain chain,
+                        System.Net.Security.SslPolicyErrors sslPolicyErrors) => true;
+
+                    // Conectar a Mailtrap
+                    client.Connect("sandbox.smtp.mailtrap.io", 2525, MailKit.Security.SecureSocketOptions.StartTls);
+                    client.Authenticate(_configuration["SMTPSettings:SMTPUser"], _configuration["SMTPSettings:SMTPPass"]); // Autenticación con Mailtrap
+                    await client.SendAsync(message);
+                    client.Disconnect(true);
+                }
+
+                return Ok(perfil);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+
+        [HttpPost("email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetByEmail([FromForm] string email)
+        {
+            try
+            {
+                var entidad = await _context.Propietario.FirstOrDefaultAsync(x => x.Email == email);
+
+                if (entidad != null)
+                {
+                    var Token = GenerarToken(entidad);
+                    var url = this.GenerarUrlCompleta("Token", "Propietarios", environment);
+                    return Ok(new { Propietario = entidad, Token = Token });
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        public string GenerarToken(Propietario propietario)
+        {
+            // Configuración del token desde el archivo appsettings.json
+            var issuer = _configuration["TokenAuthentication:Issuer"];
+            var audience = _configuration["TokenAuthentication:Audience"];
+            var secretKey = _configuration["TokenAuthentication:SecretKey"];
+
+            // Convierte la clave secreta a bytes
+            var key = Encoding.ASCII.GetBytes(secretKey);
+
+            // Crea el manejador de tokens
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            // Define el descriptor del token, que contiene los claims y las configuraciones
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+            new Claim(ClaimTypes.NameIdentifier, propietario.Id_Propietario.ToString()),  // Identificador único del propietario
+            new Claim("Apellido", propietario.Apellido),  // Apellido del propietario
+            new Claim(ClaimTypes.Name, propietario.Nombre),  // Nombre del propietario
+            new Claim(ClaimTypes.Email, propietario.Email),  // Email del propietario
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),  // El token será válido por 1 hora
+                Issuer = issuer,  // Configuración del Issuer
+                Audience = audience,  // Configuración del Audience
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)  // Configuración de las credenciales de firma
+            };
+
+            // Crea el token
+            var tokenMail = tokenHandler.CreateToken(tokenDescriptor);
+
+            // Escribe el token en formato string
+            return tokenHandler.WriteToken(tokenMail);
+        }
+
+
 
 
     }

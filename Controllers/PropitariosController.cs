@@ -242,9 +242,10 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
         //recupero de olvido mi contraseña para que le mande el mail 
 
         // GET api/<controller>/token
-        [HttpGet("mail&token")]
+        [HttpGet("token")]
         public async Task<IActionResult> Token()
         {
+
             try
             {
                 var perfil = new
@@ -252,6 +253,8 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
                     Email = User.Claims.First(x => x.Type == ClaimTypes.Email).Value, // sacamos el email correcto
                     Nombre = User.Claims.First(x => x.Type == "Apellido").Value, // sacamos el apellido 
                 };
+                // Busca el propietario por nombre de usuario
+                var propietario = await _context.Propietario.FirstOrDefaultAsync(p => p.Email == perfil.Email);
                 //se genera clave de 4 
                 Random rand = new Random(Environment.TickCount);
                 string randomChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789";
@@ -260,6 +263,23 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
                 {
                     nuevaClave += randomChars[rand.Next(0, randomChars.Length)];
                 }
+                byte[] salt;
+                salt = Convert.FromBase64String(_configuration["Salt"]);
+                // Generar el hash de la nueva contraseña
+                string nuevaContrasena = nuevaClave;  //generar una nueva contraseña por defecto.
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                                password: nuevaContrasena,
+                                salt: salt,
+                                prf: KeyDerivationPrf.HMACSHA1,
+                                iterationCount: 1000,
+                                numBytesRequested: 256 / 8));
+
+                // actualiza la contraseña del propietario
+                propietario.Contrasena = hashed;
+                // guarda los cambios en la base de datos
+                _context.SaveChanges();
+
+
                 //Console.WriteLine($"Enviando correo a: {perfil.Email}, con nombre: {perfil.Nombre}");
 
                 // Crear el mensaje de correo

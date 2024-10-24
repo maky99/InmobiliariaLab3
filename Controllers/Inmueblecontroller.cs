@@ -55,6 +55,7 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
                     i.Patio,
                     i.Precio,
                     i.Condicion,
+                    i.foto,
                     i.Estado_Inmueble
                 })
                 .ToList();

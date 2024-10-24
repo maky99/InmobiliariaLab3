@@ -31,6 +31,7 @@ public class Inmueble
     public string? Condicion { get; set; }
     [ForeignKey("Id_Tipo_Inmueble")]
     public Tipo_Inmueble? tipo { get; set; }
+    public string? foto { get; set; }
     public int Estado_Inmueble { get; set; }
     [ForeignKey("Id_Propietario")]
     public Propietario? propietario { get; set; }

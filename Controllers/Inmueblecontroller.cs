@@ -33,10 +33,10 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
             int idPropietario = int.Parse(userId);
 
 
-            // Incluimos las relaciones con Propietario y Tipo_Inmueble
+            // busco las relaciones con propietario y nmueble
             var inmuebles = _context.Inmueble
-                .Include(i => i.propietario)  // Incluimos la relación con Propietario
-                .Include(i => i.tipo)  // Incluimos la relación con Tipo_Inmueble
+                .Include(i => i.propietario)  // join con propietario
+                .Include(i => i.tipo)  // join con tipo inmueble
                 .Where(i => i.Id_Propietario == idPropietario)
                 .Select(i => new
                 {
@@ -66,5 +66,43 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
 
             return Ok(inmuebles);
         }
+
+
+        [HttpPut("actualiEstado")]
+        [Authorize]
+        public async Task<IActionResult> ActtuInmueble([FromBody] Inmueble inmueble)
+        {
+            Console.WriteLine("inmueble 75 línea: " + inmueble);
+            // saco id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // id a entero
+            int idPropietario = int.Parse(userId);
+
+            // buscamps el inmueble x id  y que pertenece al propietario autenticado
+            var inmuebleExistente = _context.Inmueble.FirstOrDefault(i => i.Id_Inmueble == inmueble.Id_Inmueble && i.Id_Propietario == idPropietario);
+
+            if (inmuebleExistente == null)
+            {
+                return NotFound(new { mensaje = "Inmueble no encontrado o no autorizado para actualizar." });
+            }
+
+            // actualizo el estado del inmueble
+            inmuebleExistente.Estado_Inmueble = inmueble.Estado_Inmueble;
+
+            _context.Entry(inmuebleExistente).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("Estado del inmueble actualizado exitosamente.");
+        }
+
+
+
+
+
+
+
+
+
+
     }
 }

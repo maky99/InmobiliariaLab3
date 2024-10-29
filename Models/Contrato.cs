@@ -23,19 +23,13 @@ public class Contrato
     public int Estado_Contrato { get; set; }
     [ForeignKey("Id_Inmueble")]
     public Inmueble? inmueble { get; set; }
-    [ForeignKey("Id_Tipo_Inmueble")]
-    public Tipo_Inmueble? tipo_inmueble { get; set; }
-    [ForeignKey("Id_Propietarios")]
+
+    [ForeignKey("Id_Propietario")]
 
     public Propietario? propietario { get; set; }
     [ForeignKey("Id_Inquilino")]
 
     public Inquilino? inquilino { get; set; }
-    public int MesesPagos { get; set; }
-    //[ForeignKey("Id_Usuario")]
-
-    //public Usuario? usuario { get; set; }
-
 
 
 }

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace InmobiliariaLab3.Models;
 public class Pago
 {
+    [Key]
     public int Id_Pago { get; set; }
     public int Id_Contrato { get; set; }
     public double Importe { get; set; }

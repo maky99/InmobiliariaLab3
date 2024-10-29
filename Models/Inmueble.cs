@@ -13,8 +13,6 @@ public class Inmueble
     // [Required(ErrorMessage = "El uso es obligatorio.")]
     public string? Uso { get; set; }
     public int Ambientes { get; set; }
-    public string? Latitud { get; set; }
-    public string? Longitud { get; set; }
     // [Required(ErrorMessage = "El tamaño es obligatorio.")]
     public double Tamano { get; set; }
     public int Id_Tipo_Inmueble { get; set; }
@@ -35,11 +33,6 @@ public class Inmueble
     public int Estado_Inmueble { get; set; }
     [ForeignKey("Id_Propietario")]
     public Propietario? propietario { get; set; }
-    //public int Mes { get; set; }
-    // public double PrecioMin { get; set; }
-    // public double PrecioMax { get; set; }
-    //public DateTime FechaInicioAlquiler { get; set; }
-    // public DateTime FechaFinAlquiler { get; set; }
 
 
 }

@@ -45,8 +45,6 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
                     i.Direccion,
                     i.Uso,
                     i.Ambientes,
-                    i.Latitud,
-                    i.Longitud,
                     i.Tamano,
                     TipoInmueble = i.tipo != null ? i.tipo.Tipo : "Tipo no asignado",
                     i.Servicios,
@@ -72,12 +70,10 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
         [Authorize]
         public async Task<IActionResult> ActtuInmueble([FromBody] Inmueble inmueble)
         {
-            Console.WriteLine("inmueble 75 línea: " + inmueble);
             // saco id del propietario desde el token JWT
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             // id a entero
             int idPropietario = int.Parse(userId);
-
             // buscamps el inmueble x id  y que pertenece al propietario autenticado
             var inmuebleExistente = _context.Inmueble.FirstOrDefault(i => i.Id_Inmueble == inmueble.Id_Inmueble && i.Id_Propietario == idPropietario);
 
@@ -85,17 +81,45 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
             {
                 return NotFound(new { mensaje = "Inmueble no encontrado o no autorizado para actualizar." });
             }
-
             // actualizo el estado del inmueble
             inmuebleExistente.Estado_Inmueble = inmueble.Estado_Inmueble;
-
             _context.Entry(inmuebleExistente).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return Ok("Estado del inmueble actualizado exitosamente.");
         }
 
+        [HttpPost("nuevoInmueble")]
+        [Authorize]
+        public async Task<IActionResult> NuevoInmueble([FromBody] Inmueble inmueble)
+        {
+            Console.WriteLine("llega" + inmueble);
+            // saco id del propietario desde el token JWT
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // id a entero
+            int idPropietario = int.Parse(userId);
+            if (userId == null)
+            {
+                return Unauthorized("No se pudo obtener el ID del usuario.");
+            }
 
+            inmueble.Id_Propietario = idPropietario;
+
+            try
+            {
+                // Agrega el inmueble a la base de datos
+                _context.Add(inmueble);
+
+                // Guarda los cambios de forma asincrónica
+                await _context.SaveChangesAsync();
+
+                return Ok(new { mensaje = "Inmueble creado exitosamente", inmueble });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = "Error al crear el inmueble", error = ex.Message });
+            }
+
+        }
 
 
 

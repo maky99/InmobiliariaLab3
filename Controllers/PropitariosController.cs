@@ -33,17 +33,6 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
 
         }
 
-        // Método para obtener todos los propietarios
-
-        [HttpGet]
-        public IActionResult GetPropietarios()
-        {
-            var propietarios = _context.Propietario.ToList();  // Recupera todos los propietarios de la base de datos
-            return Ok(propietarios);  // Devuelve los propietarios en formato JSON
-        }
-
-
-
         [HttpGet("miPerfil")]
         [Authorize]
         public async Task<ActionResult<Propietario>> GetPropietario()
@@ -78,7 +67,12 @@ namespace InmobiliariaLab3.Controllers.API  // Asegúrate que el namespace coinc
             propietarioBase.Direccion = propieta.Direccion;
             propietarioBase.Telefono = propieta.Telefono;
             propietarioBase.Email = propieta.Email;
-            propietarioBase.foto = propieta.foto;
+            // si la foto no esta vacia
+            if (!string.IsNullOrEmpty(propieta.foto))
+            {
+                propietarioBase.foto = propieta.foto;
+            }
+
 
             await _context.SaveChangesAsync();
 

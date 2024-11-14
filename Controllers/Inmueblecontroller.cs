@@ -129,6 +129,7 @@ public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[From
 {
     // Obtén el ID del propietario desde el token JWT
     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+   
     if (userId == null)
     {
         return Unauthorized("No se pudo obtener el ID del usuario.");
@@ -136,7 +137,7 @@ public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[From
     int idPropietario = int.Parse(userId);
 
     // Crea el objeto Inmueble
-    Inmueble inmueble = new Inmueble
+    var inmueble = new Inmueblee
     {
         Direccion = direccion,
         Uso = uso,
@@ -152,6 +153,7 @@ public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[From
         Estado_Inmueble = estado ? 1 : 0, // Convierte el booleano a 1 o 0 para el estado
         Id_Propietario = idPropietario
     };
+     Console.WriteLine("perrro" +inmueble);
 
    if (archivoFoto != null)
 {
@@ -174,7 +176,7 @@ public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[From
     }
 
     // Asocia la ruta relativa de la imagen (dentro de wwwroot) al inmueble
-    inmueble.foto = Path.Combine("imagenes", archivoFoto.FileName);
+    //inmueble.foto = Path.Combine("imagenes", archivoFoto.FileName);
 }
 
 

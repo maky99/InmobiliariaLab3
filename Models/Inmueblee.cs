@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InmobiliariaLab3.Models;
 
-public class Inmueble
+public class Inmueblee
 {
     [Key]
     public int Id_Inmueble { get; set; }
@@ -27,20 +27,8 @@ public class Inmueble
     public double Precio { get; set; }
     // [Required(ErrorMessage = "La condición es obligatoria.")]
     public string? Condicion { get; set; }
-    public string? foto { get; set; }
+    public IFormFile foto { get; set; }
     public int Estado_Inmueble { get; set; }
-    [ForeignKey("Id_Tipo_Inmueble")]
-    public Tipo_Inmueble? tipo { get; set; }
-    [ForeignKey("Id_Propietario")]
-    public Propietario? propietario { get; set; }
+    
 
-
-
-public override string ToString()
-{
-    return $"Id_Inmueble: {Id_Inmueble}, Id_Propietario: {Id_Propietario}, Direccion: {Direccion}, Uso: {Uso}, " +
-           $"Ambientes: {Ambientes}, Tamano: {Tamano}, Id_Tipo_Inmueble: {Id_Tipo_Inmueble}, Servicios: {Servicios}, " +
-           $"Bano: {Bano}, Cochera: {Cochera}, Patio: {Patio}, Precio: {Precio}, Condicion: {Condicion}, " +
-           $"Foto: {foto}, Estado_Inmueble: {Estado_Inmueble}, Tipo: {tipo}, Propietario: {propietario}";
-}
 }

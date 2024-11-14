@@ -36,11 +36,5 @@ public class Inmueble
 
 
 
-public override string ToString()
-{
-    return $"Id_Inmueble: {Id_Inmueble}, Id_Propietario: {Id_Propietario}, Direccion: {Direccion}, Uso: {Uso}, " +
-           $"Ambientes: {Ambientes}, Tamano: {Tamano}, Id_Tipo_Inmueble: {Id_Tipo_Inmueble}, Servicios: {Servicios}, " +
-           $"Bano: {Bano}, Cochera: {Cochera}, Patio: {Patio}, Precio: {Precio}, Condicion: {Condicion}, " +
-           $"Foto: {foto}, Estado_Inmueble: {Estado_Inmueble}, Tipo: {tipo}, Propietario: {propietario}";
-}
+
 }

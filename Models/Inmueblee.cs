@@ -5,8 +5,6 @@ namespace InmobiliariaLab3.Models;
 
 public class Inmueblee
 {
-    [Key]
-    public int Id_Inmueble { get; set; }
     public int Id_Propietario { get; set; }
     // [Required(ErrorMessage = "La dirección es obligatoria.")]
     public string? Direccion { get; set; }
@@ -27,8 +25,8 @@ public class Inmueblee
     public double Precio { get; set; }
     // [Required(ErrorMessage = "La condición es obligatoria.")]
     public string? Condicion { get; set; }
-    public IFormFile foto { get; set; }
+    public string? foto { get; set; }
     public int Estado_Inmueble { get; set; }
-    
+
 
 }

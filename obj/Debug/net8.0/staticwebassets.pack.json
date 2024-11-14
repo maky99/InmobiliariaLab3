@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\MAKY\\Documents\\GitHub\\InmobiliariaLab3\\wwwroot\\imagenes\\silueta.png",
+      "PackagePath": "staticwebassets\\imagenes\\silueta.png"
+    },
+    {
+      "Id": "C:\\Users\\MAKY\\Documents\\GitHub\\InmobiliariaLab3\\wwwroot\\imagenes\\temp_image.jpg",
+      "PackagePath": "staticwebassets\\imagenes\\temp_image.jpg"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.InmobiliariaLab3.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.InmobiliariaLab3.props",
+      "PackagePath": "build\\InmobiliariaLab3.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.InmobiliariaLab3.props",
+      "PackagePath": "buildMultiTargeting\\InmobiliariaLab3.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.InmobiliariaLab3.props",
+      "PackagePath": "buildTransitive\\InmobiliariaLab3.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

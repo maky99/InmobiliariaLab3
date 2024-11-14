@@ -122,6 +122,7 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
         // }
 
 
+
 [HttpPost("nuevoInmueble")]
 [Authorize]
 public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[FromForm] string uso, [FromForm] int ambientes,[FromForm] double tamano,[FromForm] int tipo,[FromForm] string servicios,[FromForm] int bano,[FromForm] int cochera, [FromForm] int patio,[FromForm] double precio,[FromForm] string condicion,[FromForm] bool estado,[FromForm] IFormFile archivoFoto)
@@ -187,6 +188,7 @@ public async Task<IActionResult> NuevoInmueble([FromForm] string direccion,[From
     }
     catch (Exception ex)
     {
+         Console.WriteLine($"Error al crear el inmueble: {ex.Message}");
         return BadRequest(new { mensaje = "Error al crear el inmueble", error = ex.Message });
     }
 }

@@ -1,11 +1,19 @@
 {
   "Version": 1,
-  "Hash": "RlLjI5QaBWnaANNkzOswcNCPJpLjGX3aJVbQNENLhUo=",
+  "Hash": "Tu3+SEQe1m7YAP1T2U8//Aa86B9ZGE2zNEW1q5z1Q6g=",
   "Source": "InmobiliariaLab3",
   "BasePath": "_content/InmobiliariaLab3",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "InmobiliariaLab3\\wwwroot",
+      "Source": "InmobiliariaLab3",
+      "ContentRoot": "C:\\Users\\MAKY\\Documents\\GitHub\\InmobiliariaLab3\\wwwroot\\",
+      "BasePath": "_content/InmobiliariaLab3",
+      "Pattern": "**"
+    }
+  ],
   "Assets": []
 }

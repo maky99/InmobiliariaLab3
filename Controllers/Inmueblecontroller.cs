@@ -123,84 +123,87 @@ namespace InmobiliariaSarchioniAlfonzo.Controllers.API
 
         [HttpPost("nuevoInmueble")]
         [Authorize]
-        public async Task<IActionResult> NuevoInmueble(
-            [FromForm] string direccion,
-            [FromForm] string uso,
-            [FromForm] int ambientes,
-            [FromForm] double tamano,
-            [FromForm] int id_Tipo_Inmueble,
-            [FromForm] string servicios,
-            [FromForm] int bano,
-            [FromForm] int cochera,
-            [FromForm] int patio,
-            [FromForm] double precio,
-            [FromForm] string condicion,
-            [FromForm] bool estado_Inmueble,
-            [FromForm] IFormFile archivoFoto
-        )
+        public async Task<IActionResult> NuevoInmueble([FromForm] Inmueblee dpto)
         {
-            // Obtén el ID del propietario desde el token JWT
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // Imprimiendo las propiedades individualmente
+            Console.WriteLine("Llega Dirección: " + dpto.Direccion);
+            Console.WriteLine("Llega Uso: " + dpto.Uso);
+            Console.WriteLine("Llega Ambientes: " + dpto.Ambientes);
+            Console.WriteLine("Llega Tamaño: " + dpto.Tamano);
+            Console.WriteLine("Llega Tipo de Inmueble Id: " + dpto.Id_Tipo_Inmueble);
+            Console.WriteLine("Llega Servicios: " + dpto.Servicios);
+            Console.WriteLine("Llega Baños: " + dpto.Bano);
+            Console.WriteLine("Llega Cochera: " + dpto.Cochera);
+            Console.WriteLine("Llega Patio: " + dpto.Patio);
+            Console.WriteLine("Llega Precio: " + dpto.Precio);
+            Console.WriteLine("Llega Condición: " + dpto.Condicion);
+            Console.WriteLine("Llega Estado de Inmueble: " + dpto.Estado_Inmueble);
+            // Console.WriteLine("Llega Foto: " + dpto.foto.FileName);
 
-            if (userId == null)
-            {
-                return Unauthorized("No se pudo obtener el ID del usuario.");
-            }
-            int idPropietario = int.Parse(userId);
-
-            // Crea el objeto Inmueble
-            var inmueble = new Inmueble
-            {
-                Direccion = direccion,
-                Uso = uso,
-                Ambientes = ambientes,
-                Tamano = tamano,
-                Id_Tipo_Inmueble = id_Tipo_Inmueble,
-                Servicios = servicios,
-                Bano = bano,
-                Cochera = cochera,
-                Patio = patio,
-                Precio = precio,
-                Condicion = condicion,
-                Estado_Inmueble = estado_Inmueble ? 1 : 0,
-                Id_Propietario = idPropietario
-            };
-
-            // Manejo del archivo de imagen (si se proporciona)
-            if (archivoFoto != null)
-            {
-                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes");
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
-                var filePath = Path.Combine(folderPath, archivoFoto.FileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await archivoFoto.CopyToAsync(stream);
-                }
-                inmueble.foto = Path.Combine("imagenes", archivoFoto.FileName);
-            }
 
             try
             {
-                _context.Add(inmueble);
+                // Obtén el ID del propietario desde el token JWT
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId == null)
+                {
+                    return Unauthorized("No se pudo obtener el ID del usuario.");
+                }
+                int idPropietario = int.Parse(userId);
+
+                // Crea el objeto Inmueble
+                var inmueble = new Inmueble
+                {
+                    Direccion = dpto.Direccion,
+                    Uso = dpto.Uso,
+                    Ambientes = dpto.Ambientes,
+                    Tamano = dpto.Tamano,
+                    Id_Tipo_Inmueble = dpto.Id_Tipo_Inmueble,
+                    Servicios = dpto.Servicios,
+                    Bano = dpto.Bano,
+                    Cochera = dpto.Cochera,
+                    Patio = dpto.Patio,
+                    Precio = dpto.Precio,
+                    Condicion = dpto.Condicion,
+                    Estado_Inmueble = dpto.Estado_Inmueble,
+                    Id_Propietario = idPropietario
+
+                };
+
+                // Si hay una imagen, guárdala en la carpeta `wwwroot/img`
+                if (dpto.foto != null)
+                {
+                    // Genera la ruta completa para guardar la imagen
+                    var imagePath = Path.Combine("wwwroot/imagenes", dpto.foto.FileName);
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await dpto.foto.CopyToAsync(stream);
+                    }
+                    // Guarda solo el nombre del archivo en la base de datos
+                    inmueble.foto = dpto.foto.FileName; // Guardamos solo el nombre del archivo
+                }
+                // Guarda el inmueble en la base de datos
+                _context.Inmueble.Add(inmueble);
                 await _context.SaveChangesAsync();
+
                 return Ok(new { mensaje = "Inmueble creado exitosamente", inmueble });
             }
+
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al crear el inmueble: {ex.Message}");
-                return BadRequest(new { mensaje = "Error al crear el inmueble", error = ex.Message });
+                return BadRequest(ex.Message);
             }
         }
-
-
-
-
-
-
     }
 }
+
+
+
+
+
+
+
+
 
 

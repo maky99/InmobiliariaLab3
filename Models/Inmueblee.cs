@@ -1,7 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace InmobiliariaLab3.Models;
 
 public class Inmueblee
 {
@@ -25,7 +21,7 @@ public class Inmueblee
     public double Precio { get; set; }
     // [Required(ErrorMessage = "La condición es obligatoria.")]
     public string? Condicion { get; set; }
-    public string? foto { get; set; }
+    public IFormFile? foto { get; set; }
     public int Estado_Inmueble { get; set; }
 
 
